@@ -1,5 +1,6 @@
 const canvasSketch = require("canvas-sketch");
 const random = require("canvas-sketch-util/random");
+const math = require("canvas-sketch-util/math");
 const settings = {
   dimensions: [1080, 1080],
   animate: true,
@@ -24,6 +25,21 @@ const sketch = ({ context, width, height }) => {
     // const agentB = new Agent(300, 700);
     // agentA.draw(context);
     // agentB.draw(context);
+    //dessin des lignes /////
+    for (let i = 0; i < agents.length; i++) {
+      const agent = agents[i];
+      for (let j = i + 1; j < agents.length; j++) {
+        const other = agents[j];
+        const dist = agent.pos.getDistance(other.pos);
+        if (dist > 200) continue; //ignore la suite de la boucle for
+        context.lineWidth = math.mapRange(dist, 0, 200, 12, 1);
+        context.beginPath();
+        context.moveTo(agent.pos.x, agent.pos.y);
+        context.lineTo(other.pos.x, other.pos.y);
+        context.stroke();
+      }
+    }
+    //dessin des cercle dans le canvas //////
     agents.forEach((agent) => {
       agent.update();
       agent.draw(context);
@@ -32,10 +48,18 @@ const sketch = ({ context, width, height }) => {
   };
 };
 canvasSketch(sketch, settings);
+
+///////////////////classes///////////////////////////////
 class Vector {
   constructor(x, y) {
     this.x = x;
     this.y = y;
+  }
+
+  getDistance(v) {
+    const dx = this.x - v.x; //distance sur le plan des absicce
+    const dy = this.y - v.y; //distance sur le plan des ordonnée
+    return Math.sqrt(dx * dx + dy * dy);
   }
 }
 class Agent {
